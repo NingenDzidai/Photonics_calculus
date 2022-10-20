@@ -1,0 +1,39 @@
+import cv2
+import numpy as np
+from scipy.fft import fft2, ifft2, ifftshift
+from scipy.signal import fftconvolve
+
+# нужно сделать так, чтобы можно было делать блюр разной интенсивности и чтобы прога работала с цветными пикчами
+
+img = cv2.imread("beato.jpg", cv2.IMREAD_GRAYSCALE)
+cv2.imshow("beato.jpg", img)
+cv2.waitKey(0) 
+cv2.destroyAllWindows()
+
+kernel = np.ones((3,3)) / 9
+
+
+output = cv2.filter2D(img, -1, kernel)
+cv2.imshow("beato.jpg", output)
+cv2.waitKey(0) 
+cv2.destroyAllWindows()
+
+sz = (img.shape[0] - kernel.shape[0], img.shape[1] - kernel.shape[1])  # total amount of padding
+kernel = np.pad(kernel, (((sz[0]+1)//2, sz[0]//2), ((sz[1]+1)//2, sz[1]//2)), 'constant')# padding kernel with zeros
+# kernel = kernel[..., None]
+# append_values = np.zeros((576,1024))
+# append_values = append_values[..., None]
+# i = 1
+# for i in range(2):
+#     kernel = np.concatenate((kernel, append_values), axis=2)
+
+kernel = ifftshift(kernel) / 255 
+
+filtered = np.real(ifft2(fft2(img) * fft2(kernel)))
+cv2.imshow("beato.jpg", filtered)
+cv2.waitKey(0) 
+cv2.destroyAllWindows()
+
+
+# cv2.imshow("Gaussian Smoothing", numpy.hstack((img, dst)))
+
